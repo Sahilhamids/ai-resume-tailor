@@ -1,3 +1,4 @@
+# pyrefly: ignore [missing-import]
 import streamlit as st
 import requests
 from pdf_generator import create_pdf_from_json
@@ -38,27 +39,32 @@ if st.button("Tailor My Resume", type="primary"):
                     result = response.json()
                     ai_data = result["ai_analysis"]
                     
-                    st.success("Resume successfully tailored and logged in the database!")
-                    
-                    # 5. Display the Interview Guidance on screen
-                    st.subheader("💡 Interview Guidance & Skill Gaps")
-                    st.info(ai_data.get("interview_guidance", "No guidance provided by AI."))
-                    
-                    # 6. Generate the PDF behind the scenes
-                    pdf_filename = create_pdf_from_json(ai_data)
-                    
-                    if pdf_filename:
-                        # 7. Provide the Download Button
-                        with open(pdf_filename, "rb") as pdf_file:
-                            st.download_button(
-                                label="⬇️ Download Tailored Resume PDF",
-                                data=pdf_file,
-                                file_name="Tailored_Resume_2026.pdf",
-                                mime="application/pdf"
-                            )
+                    # SECURITY CHECK: Verify the AI returned a valid dictionary
+                    if ai_data and isinstance(ai_data, dict):
+                        st.success("Resume successfully tailored and logged in the database!")
+                        
+                        # 5. Display the Interview Guidance on screen
+                        st.subheader("💡 Interview Guidance & Skill Gaps")
+                        st.info(ai_data.get("interview_guidance", "No guidance provided by AI."))
+                        
+                        # 6. Generate the PDF behind the scenes
+                        pdf_filename = create_pdf_from_json(ai_data)
+                        
+                        if pdf_filename:
+                            # 7. Provide the Download Button
+                            with open(pdf_filename, "rb") as pdf_file:
+                                st.download_button(
+                                    label="⬇️ Download Tailored Resume PDF",
+                                    data=pdf_file,
+                                    file_name="Tailored_Resume_2026.pdf",
+                                    mime="application/pdf"
+                                )
+                    else:
+                        # Fallback if the AI made a JSON formatting mistake
+                        st.error("🚨 The AI had a slight hiccup formatting your resume data. Please click 'Tailor My Resume' to try again!")
+                        
                 else:
                     st.error(f"Error from backend server: {response.text}")
-                    
             except requests.exceptions.ConnectionError:
                 st.error("🚨 Failed to connect to the backend server. Is your FastAPI server running in another terminal?")
     else:
