@@ -1,4 +1,5 @@
 from jinja2 import Environment, FileSystemLoader
+# pyrefly: ignore [missing-import]
 from xhtml2pdf import pisa
 import os
 
