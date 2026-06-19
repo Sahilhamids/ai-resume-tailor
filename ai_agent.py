@@ -3,7 +3,7 @@ from extractor import extract_text_from_pdf
 import json # <-- NEW: We need this to parse the AI's structured response
 
 # 1. Set up your API key
-API_KEY = "AQ.Ab8RN6Ls7DLmumqxmZk2Y1wpMqBBqfi4V1S7EtibwXDNJIBPoQ" 
+API_KEY = "YOUR_API_KEY_HERE" 
 client = genai.Client(api_key=API_KEY)
 
 def generate_tailored_resume(resume_text, job_description):
