@@ -32,7 +32,7 @@ if st.button("Tailor My Resume", type="primary"):
 
             try:
                 # 4. Call your FastAPI backend!
-                response = requests.post("http://localhost:8000/tailor-resume", files=files, data=data)
+                response = requests.post("https://ai-resume-tailor-znxi.onrender.com/tailor-resume", files=files, data=data)
                 
                 if response.status_code == 200:
                     result = response.json()
