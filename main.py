@@ -1,6 +1,7 @@
 from fastapi import FastAPI, UploadFile, File, Form
 import shutil
 import os
+import sqlite3 # <-- NEW: Importing the database library
 
 # Importing the functions you already built!
 from extractor import extract_text_from_pdf
@@ -25,7 +26,25 @@ async def tailor_resume(
         # 3. Send to Gemini AI using your existing function
         ai_response = generate_tailored_resume(resume_text, job_description)
         
-        # 4. Return the AI's analysis
+        # --- NEW DATABASE LOGIC ---
+        # 4. Connect to the database and log the data
+        try:
+            conn = sqlite3.connect('resume_app.db')
+            cursor = conn.cursor()
+            
+            # Using placeholders (?) prevents SQL injection attacks!
+            cursor.execute('''
+                INSERT INTO generated_resumes (job_description, filename, ai_analysis)
+                VALUES (?, ?, ?)
+            ''', (job_description, resume_file.filename, ai_response))
+            
+            conn.commit()
+            conn.close()
+        except Exception as db_error:
+            print(f"Database error: {db_error}")
+        # --------------------------
+        
+        # 5. Return the AI's analysis
         return {
             "status": "success",
             "filename": resume_file.filename,
@@ -33,6 +52,6 @@ async def tailor_resume(
         }
         
     finally:
-        # 5. Clean up by deleting the temporary file
+        # 6. Clean up by deleting the temporary file
         if os.path.exists(temp_file_path):
             os.remove(temp_file_path)
